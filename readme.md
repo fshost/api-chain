@@ -62,7 +62,6 @@ When performing many asynchronous operations in javascript, nested callbacks can
 
 ***api*.chain(fn)** - add callback **fn** to be executed next in the control flow stack.  The signature for this function should be of the form:
     fn([arg1,] [arg2,] ... [arg *n*,] [next])
-...where *next* is the callback to resume control flow execution.
 
 ### convenience methods
 ###### The following methods execute immediately (rather than within the control flow) and always return the api object
