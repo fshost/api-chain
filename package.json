@@ -1,0 +1,29 @@
+{
+  "name": "api-chain",
+  "version": "0.0.1",
+  "description": "A light and easy to use interface for creating fluent, chainable javascript APIs in Node.js or PhantomJs",
+  "main": "api-chain.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "node test/test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fshost/api-chain.git"
+  },
+  "keywords": [
+    "javascript",
+    "api",
+    "chain",
+    "chainable",
+    "promises",
+    "deferreds",
+    "Node.js",
+    "PhantomJs"
+  ],
+  "author": "Nathan Cartwright",
+  "license": "MIT",
+  "readmeFilename": "readme.md"
+}
