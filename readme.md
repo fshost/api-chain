@@ -5,48 +5,29 @@ When performing many asynchronous operations in javascript, nested callbacks can
 ### installation
     npm install api-chain
 
-### usage example
+### example
     // require api-chain module
     var api = require('api-chain');
 
     // define your api by passing custom methods to `create
     var myApi = api.create({
-        log: function (msg, next) {
-            log += msg;
-            next();
-        },
-        readyUp: function (next) {
-            // context, i.e. 'this' within a method is the api object
-            var api = this;
-            // simulate an async op
+        get: function (url, next) {
+            console.log('getting page at', url);
+            // simulate async operation
             setTimeout(function () {
-                log += 'ready!';
+                myApi.page = '<div>test</div>';
                 next();
-            }, 1500);
+            }, 1000)
         },
         done: function (msg) {
-            if (msg) console.log(msg);
+            console.log('the page contains:', this.page);
         }
     });
-    // at this point you could package the above within a new module
 
-    // an example of using 'myApi'
+    // example using 'myApi'
     myApi
-        .log('starting up...')
-        .wait(1000)
-        .log('ready up...')
-        .readyUp()
-        .log('wait for x...')
-        .until(function () {
-            return true;
-        })
-        .log('some more async js...')
-        .chain(function (next) {
-            setTimeout(function () {
-                next();
-            }, 1000);
-        })
-        .done('all done');
+        .get('http://nopage.fake')
+        .done();
 
 ### options
 | name           | type | default     | description                                                     |

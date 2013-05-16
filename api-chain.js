@@ -41,6 +41,34 @@ then to use your api...
 
 */
 
+
+// ensure that js engine has `bind´, and if not (e.g. phantomJS), then patch it
+// from https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Function/bind
+if (!Function.prototype.bind) {
+  Function.prototype.bind = function (oThis) {
+    if (typeof this !== "function") {
+      // closest thing possible to the ECMAScript 5 internal IsCallable function
+      throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
+    }
+ 
+    var aArgs = Array.prototype.slice.call(arguments, 1), 
+        fToBind = this, 
+        fNOP = function () {},
+        fBound = function () {
+          return fToBind.apply(this instanceof fNOP && oThis
+                                 ? this
+                                 : oThis,
+                               aArgs.concat(Array.prototype.slice.call(arguments)));
+        };
+ 
+    fNOP.prototype = this.prototype;
+    fBound.prototype = new fNOP();
+ 
+    return fBound;
+  };
+}
+
+
 function API(options) {
     var api = this;
     api._callbacks = [];
@@ -88,8 +116,10 @@ API.prototype._next = function (api) {
         if (api._continueErrors || !err) {
             if (api._callbacks.length > 0) {
                 api._isQueueRunning = true;
-                var cb = api._callbacks.shift();
-                try { cb(api.next) }
+                var cb = api._callbacks.shift().bind(api);
+                try { 
+                    cb(api.next);
+                }
                 catch(ex) { api.next(ex) }
 
             }
@@ -100,32 +130,30 @@ API.prototype._next = function (api) {
 };
 
 // immediately set instance properties
-API.prototype.set = function (name, value) {
-    if (arguments.length === 1) {
-        var props = name;
-        for (var name in props) {
-            if (props.hasOwnProperty(name)) {
-                console.log('setting property', name, 'to a value');
-                this[name] = props[name];
-            }
-        }
+API.prototype.set = function (name, value, immediate) {
+    if (immediate) {
+        this[name] = value;
     }
-    else this[name] = value;
+    else this.chain(function (next) {
+        this[name] = value;
+        next();
+    })
     return this;
 };
 
 // set an option value
 API.prototype.setOption = function (name, value) {
-    this.set('_' + name, value);
+    return this.set('_' + name, value);
 };
 
 // set options based on key/value pairs
 API.prototype.setOptions = function (options) {
     for (var name in options) {
-        if (props.hasOwnProperty(name)) {
+        if (options.hasOwnProperty(name)) {
             this.setOption(name, options[name]);
         }
     }
+    return this;
 };
 
 // add a callback to the execution chain
@@ -137,6 +165,7 @@ API.prototype.chain = function (cb) {
     return this;
 };
 
+// wait - pause execution flow for specified milliseconds
 API.prototype.wait = function (ms) {
     this.chain(function (next) {
         setTimeout(function () {
@@ -149,15 +178,17 @@ API.prototype.wait = function (ms) {
 // until - pause execution flow until [cb] returns true
 API.prototype.until = function (cb) {
     var timeout;
-    var api = this;
     this.chain(function (next) {
+        var api = this;
         var evaluator = setInterval(function () {
-            if (cb()) {
+            var ccb = cb.bind(api);
+            var result = ccb();
+            if (result) {
                 clearInterval(evaluator);
                 if (timeout !== undefined) clearTimeout(timeout);
                 next();
             }
-        }, api.untilInterval || 30);
+        }, api._untilInterval || 30);
         // to set a timeout for condition to be met, set the _untilTimeout property to ms value
         if (api.untilTimeout) {
             timeout = setTimeout(function () {
@@ -173,7 +204,6 @@ API.prototype.until = function (cb) {
     });
     return this;
 };
-
 // module exports
 // -----
 exports.API = API;
