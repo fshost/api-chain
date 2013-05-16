@@ -41,13 +41,14 @@ When performing many asynchronous operations in javascript, nested callbacks can
 
 ***api*.until(fn)** - wait until callback *fn* returns true before continuing execution flow
 
-***api*.chain(fn)** - add callback **fn** to be executed next in the control flow stack.  The signature for this function should be of the form:
-    fn([arg1,] [arg2,] ... [arg *n*,] [next])
+***api*.chain(fn)** - add callback **fn** to be executed next in the control flow stack.
+- callback signature: **fn([arg1,] [arg2,] ... [arg *n*,] [next])**
 
-### convenience methods
-###### The following methods execute immediately (rather than within the control flow) and always return the api object
-***api*.set(name, value)** - set api object property *name* to *value*
+***api*.set(name, value, [immediate])** - set api object property *name* to *value*
+- if the *immediate* flag is set, the value will be set immediately rather than within the control flow
 
+### immediate methods
+###### The following methods execute immediately (rather than within the control flow) and always return the api object 
 ***api*.setOption(option, value)** - set *option* to *value*
 
 ***api*.setOptions(options)** - set several options at once based on *options* collection of key/value pairs
