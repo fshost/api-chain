@@ -9,7 +9,7 @@ When performing many asynchronous operations in javascript, nested callbacks can
     // require api-chain module
     var api = require('api-chain');
 
-    // define your api by passing custom methods to `create
+    // define your api by passing custom methods to `create´
     var myApi = api.create({
         get: function (url, next) {
             console.log('getting page at', url);
