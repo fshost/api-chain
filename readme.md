@@ -9,7 +9,7 @@ When performing many asynchronous operations in javascript, nested callbacks can
     // require api-chain module
     var api = require('api-chain');
 
-    // define your api by passing custom methods to `create´
+    // define your api by passing custom methods to `create
     var myApi = api.create({
         get: function (url, next) {
             console.log('getting page at', url);
@@ -28,6 +28,8 @@ When performing many asynchronous operations in javascript, nested callbacks can
     myApi
         .get('http://nopage.fake')
         .done();
+
+For more examples look in the examples subdirectory.
 
 ### options
 | name           | type | default     | description                                                     |
@@ -52,6 +54,11 @@ When performing many asynchronous operations in javascript, nested callbacks can
 ***api*.setOption(option, value)** - set *option* to *value*
 
 ***api*.setOptions(options)** - set several options at once based on *options* collection of key/value pairs
+
+### testing
+to test you will need mocha and chai installed.  Then just cd to the directory api-chain is installed in and type
+
+    mocha
 
 ### license
 MIT Style License - see license.txt

@@ -2,8 +2,13 @@
     var api = require('../api-chain');
 
     // define your api by passing custom methods to `create
+
+    var totalShots = 0;
     var myApi = api.create({
-        log: function (msg, next) {
+        log: function () {
+            var args = Array.prototype.slice.call(arguments);
+            var next = args.pop();
+            var msg = args.join(' ');
             console.log('>>', msg);
             next();
         },
@@ -15,14 +20,20 @@
                 next();
             }, 1500);
         },
-        done: function (msg) {
-            if (msg) this.log(msg);
+        showScore: function (next) {
+            this.log('it took you', this.shots, 'shots');
+            if (this.shots === 3) this.log('perfect mission!');
+            else if (this.shots < 6) this.log('not bad for a rookie.');
+            else this.log('you need to work on your aim, space-cadet!');
+            next();
         }
     });
+
 
     // example using 'myApi'
     myApi
         .log('starting game...')
+        .set('shots', 0)
         .wait(1000)
         .log('loading ammo...')
         .load()
@@ -38,17 +49,17 @@
         .set('monkeys', 3, true)
         .log('firing at space-monkeys...')
         .until(function () {
-            var hit = Math.random() > .3;
+            this.shots++;
+            var hit = Math.random() > 0.3;
             if (hit) {
-                console.log('    * hit *');
-                console.log('    space-monkey destroyed!');
+                this.log('    * hit *');
+                this.log('    space-monkey destroyed!');
                 this.monkeys--;
             }
-            else console.log('    * miss *');
+            else this.log('    * miss *');
             var done = this.monkeys < 1;
-            if (!done) console.log('>> firing...');
-            else console.log('    *** all space-monkeys have been destroyed! ***');
+            if (!done) this.log('firing...');
+            else this.log('    *** all space-monkeys have been destroyed! ***');
             return done;
         })
-        .log('game over - thanks for playing')
-        .done('mission complete');
+        .showScore();

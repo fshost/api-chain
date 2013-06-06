@@ -11,7 +11,7 @@ var myApi = api.create({
         setTimeout(function () {
             myApi.page = '<div>test</div>';
             next();
-        }, 1000)
+        }, 1000);
     },
     done: function (msg) {
         console.log('the page contains:', this.page);
