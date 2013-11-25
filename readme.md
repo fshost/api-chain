@@ -2,6 +2,8 @@
 ---
 When performing many asynchronous operations in javascript, nested callbacks can become difficult to read and maintain.  Api-chain is a very light and easy to use interface for creating a fluent synchronous style API for control flow of asynchronous javascript.  It is packaged as a commonJS module through NPM but not only works with Node.js, but has been tested and works with PhantomJS as well.
 
+Methods can pass values down the chain by invoking next with them, e.g. next(null, value).  Node.js callback style methods will be wrapped automatically so as to pass the results down the chain.
+
 ### installation
     npm install api-chain
 
@@ -9,25 +11,21 @@ When performing many asynchronous operations in javascript, nested callbacks can
     // require api-chain module
     var api = require('api-chain');
 
-    // define your api by passing custom methods to `create
-    var myApi = api.create({
-        get: function (url, next) {
-            console.log('getting page at', url);
-            // simulate async operation
-            setTimeout(function () {
-                myApi.page = '<div>test</div>';
-                next();
-            }, 1000)
+    // define your api by passing methods to create
+    var fs = api.create({
+        read: require('fs').readFile,
+        toString: function (data, next) {
+            next(null, data.toString());
         },
-        done: function (msg) {
-            console.log('the page contains:', this.page);
+        view: function (contents) {
+            console.log(contents);
         }
     });
 
-    // example using 'myApi'
-    myApi
-        .get('http://nopage.fake')
-        .done();
+    // example using the chainable 'fs' API as created above
+    fs.read('./index.js')
+      .toString()
+      .view();
 
 For more examples look in the examples subdirectory.
 
