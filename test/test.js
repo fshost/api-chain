@@ -1,9 +1,9 @@
 var path = require('path');
-var chai = require('chai');
-var expect = chai.expect;
+var fs = require('fs');
 var assert = require('should');
+
 var log = '';
-var expectedLog = 'starting up...startedready up...wait for change...changed';
+var expectedLog = 'starting up...startedready up...test file text...wait for change...changed';
 
 describe("api-chain creates a chainable api from async javascript", function() {
 
@@ -24,6 +24,10 @@ describe("api-chain creates a chainable api from async javascript", function() {
                 }, 200);
 
             },
+            toString: function (data, next) {
+                next(null, data.toString());
+            },
+            read: fs.readFile,
             exit: function(done, next) {
                 done.bind(this)(next);
             }
@@ -33,21 +37,29 @@ describe("api-chain creates a chainable api from async javascript", function() {
 
             it("will make methods chainable", function() {
                 myApi.log('starting up...')
-                .set('test', 'starting up...');
+                    .set('test', 'starting up...');
             });
 
-            it("has a set method for setting arbitrary properties", function () {
+            it("has a set method for setting arbitrary properties", function() {
                 var log = myApi._log;
                 myApi.set('_log', log + 'started');
             });
 
-            it("has a built-in wait method", function () {
+            it("has a built-in wait method", function() {
                 myApi.wait(200).readyUp();
             });
 
-            it("has a built-in method for chaining dynamic async functions", function (done) {
+            it("wraps functions that use node-style callbacks, like fs.readFile", function () {
+                myApi.read(path.join(__dirname, 'fixtures/test.txt'));
+            });
+
+            it("passes arguments down the chain", function() {
+                myApi.toString().log();
+            });
+
+            it("has a built-in method for chaining dynamic async functions", function(done) {
                 myApi.chain(function(next) {
-                    setTimeout(function () {
+                    setTimeout(function() {
                         // call next has to resolve the object
                         next();
                         // let mocha know this test is complete
@@ -56,12 +68,12 @@ describe("api-chain creates a chainable api from async javascript", function() {
                 });
             });
 
-            it("has a built-in until method to wait until a callback returns true", function (done) {
+            it("has a built-in until method to wait until a callback returns true", function(done) {
 
                 var x = 0;
-                setTimeout(function () {
-                        x = 1;
-                    }, 200);
+                setTimeout(function() {
+                    x = 1;
+                }, 200);
 
                 function changed() {
                     return x !== 0;
@@ -70,8 +82,8 @@ describe("api-chain creates a chainable api from async javascript", function() {
                     .log('wait for change...')
                     .until(changed)
                     .log('changed')
-                    .exit(function (resolve) {
-                        expect(this._log).to.eql(expectedLog);
+                    .exit(function(resolve) {
+                        this._log.should.eql(expectedLog);
                         done();
                     });
             });

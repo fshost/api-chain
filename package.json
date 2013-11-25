@@ -1,17 +1,21 @@
 {
   "name": "api-chain",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A light and easy to use interface for creating fluent, chainable javascript APIs in Node.js or PhantomJs",
   "main": "api-chain.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "node test/test"
+    "test": "./node_modules/.bin/mocha"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/fshost/api-chain.git"
+  },
+  "devDependencies": {
+    "should": "*",
+    "mocha": "*"
   },
   "keywords": [
     "javascript",
