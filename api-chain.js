@@ -34,7 +34,6 @@ function API(options) {
     }
     options = options || {};
     this._callbacks = [];
-    this._deferreds = [];
     this._isQueueRunning = false;
     this.options = this._extend({
         throwErrors: !options.onError ? true : false,
@@ -97,24 +96,14 @@ var APIPrototype = {
     next: function(err) {
         if (err) this._onError(err);
         if (this._continueErrors || !err) {
-            if (this._deferreds.length > 0) {
-                this._callbacks = this._callbacks.concat(this._deferreds.pop());
-            }
             var args = [].slice.call(arguments);
             if (this._callbacks.length > 0) {
                 this._isQueueRunning = true;
                 var cb = this._callbacks.shift();
                 cb = cb.bind(this);
-                if (this._callbacks.length > 0) {
-                    this._deferreds.push(this._callbacks);
-                    this._callbacks = [];
-                }
-                //try {
                 args = args.slice(1);
                 args.push(this.next);
                 cb.apply(this, args);
-                //}
-                //catch(ex) { this.next(ex); }
 
             } else {
                 this._isQueueRunning = false;

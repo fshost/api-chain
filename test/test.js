@@ -1,6 +1,7 @@
 var path = require('path');
 var fs = require('fs');
 var assert = require('should');
+var api = require('../api-chain');
 
 var log = '';
 var expectedLog = 'starting up...startedready up...test file text...wait for change...changed';
@@ -11,7 +12,7 @@ describe("api-chain creates a chainable api from async javascript", function() {
 
     it("has a create method that accepts an object hash of functions", function() {
 
-        myApi = require('../api-chain').create({
+        myApi = api.create({
             log: function(msg, next) {
                 this._log = this._log || '';
                 this._log += msg;
@@ -24,7 +25,7 @@ describe("api-chain creates a chainable api from async javascript", function() {
                 }, 200);
 
             },
-            toString: function (data, next) {
+            toString: function(data, next) {
                 next(null, data.toString());
             },
             read: fs.readFile,
@@ -49,7 +50,7 @@ describe("api-chain creates a chainable api from async javascript", function() {
                 myApi.wait(200).readyUp();
             });
 
-            it("wraps functions that use node-style callbacks, like fs.readFile", function () {
+            it("wraps functions that use node-style callbacks, like fs.readFile", function() {
                 myApi.read(path.join(__dirname, 'fixtures/test.txt'));
             });
 
@@ -87,7 +88,52 @@ describe("api-chain creates a chainable api from async javascript", function() {
                         done();
                     });
             });
+
+
+
+        });
+
+        describe("a chainable API with nested function calls", function() {
+            it("will invoke methods in the order expected", function(done) {
+
+                var log = '';
+                var expectedLog = 'ABCD';
+
+                var tester = api.create({
+                    A: function(next) {
+                        log += 'A';
+                        // make some nested calls
+                        this
+                            .B()
+                            .C()
+                        next();
+                    },
+                    B: function(next) {
+                        setTimeout(function() {
+                            log += 'B';
+                            next();
+                        }, 1000);
+                    },
+                    C: function(next) {
+                        log += 'C';
+                        next();
+                    },
+                    D: function(next) {
+                        log += 'D';
+                        next();
+                        log.should.eql(expectedLog);
+                        done();
+                    },
+                });
+
+                tester
+                    .A()
+                    .D();
+
+
+            });
         });
 
     });
+
 });
