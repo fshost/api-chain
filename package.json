@@ -1,6 +1,6 @@
 {
   "name": "api-chain",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "A light and easy to use interface for creating fluent, chainable javascript APIs in Node.js or PhantomJs",
   "main": "api-chain.js",
   "directories": {
