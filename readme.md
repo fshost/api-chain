@@ -54,9 +54,13 @@ For more examples look in the examples subdirectory.
 ***api*.setOptions(options)** - set several options at once based on *options* collection of key/value pairs
 
 ### testing
-to test you will need mocha and chai installed.  Then just cd to the directory api-chain is installed in and type
+to test you will need the dev dependencies installed.  Just cd to the directory api-chain is installed in and type
 
-    mocha
+    npm install
+
+when installation of the dependencies completes, type
+
+    npm test
 
 ### license
 MIT Style License - see license.txt
